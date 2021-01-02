@@ -4,7 +4,7 @@ void Timer::startTimer()
 {
 	if (!hasStarted)
 	{
-		savedTime = NULL;
+		resetTimer();
 		startTime = steady_clock::now();
 		hasStarted = true;
 	}
@@ -40,4 +40,10 @@ _int64 Timer::getSavedTime()
 		std::cout << "ERROR: Attempt to retrieve null time." << std::endl;
 		return -1;
 	}
+}
+
+void Timer::resetTimer()
+{
+	savedTime = NULL;
+	hasStarted = false;
 }

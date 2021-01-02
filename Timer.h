@@ -21,5 +21,6 @@ class Timer
 		void startTimer();
 		void stopTimer();
 		_int64 getSavedTime();
+		void resetTimer();
 };
 

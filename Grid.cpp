@@ -1,31 +1,35 @@
 #include "Grid.h"
 
-#include <stdlib.h>
-#include <time.h>
-#include <queue>
-#include <unordered_set>
+#include <chrono>
+
+using std::chrono::duration_cast;
+using std::chrono::nanoseconds;
+using std::chrono::high_resolution_clock;
 
 void Grid::displayGrid()
 {
-	cout << "   0   | 1   |   2   |   3   |   4   |   5   |   6   |   7   |   8   |   9 " << endl;
+	//cout << "   0   | 1   |   2   |   3   |   4   |   5   |   6   |   7   |   8   |   9 " << endl;
 	cout << "=============================================================================" << endl;
 	for (int i = 0; i < width; i++)
 	{
-		cout << i << " |";
+		//cout << i << " |";
 		for (int j = 0; j < height; j++)
 		{
 			cout << grid[i][j] << "\t";
 		}
-		cout << "\n==|\n";
+		cout << "\n\n";
 	}
 
 	cout << "START: " << start.x << ", " << start.y << endl;
 	cout << "END: " << end.x << ", " << end.y << endl;
 }
 
-void Grid::initialiseGrid()
+void Grid::initialiseRandomGrid()
 {
-	srand((unsigned int)time(NULL));
+	auto time = std::chrono::high_resolution_clock::now();
+	auto timeToNanoForSeed = duration_cast<nanoseconds>(time.time_since_epoch());
+
+	srand((unsigned int)timeToNanoForSeed.count());
 
 	//Random start and end place
 	start.x = rand() % width;
@@ -35,14 +39,20 @@ void Grid::initialiseGrid()
 	end.y = rand() % height;
 
 	//To get more varied start and end points (and guarantee they're not occupying the same spot)
-	while (start.x == end.x) end.x = rand() % width;
-	while (start.y == end.y) end.y = rand() % height;
+	if (start.x == end.x && start.y == end.y)
+	{
+		switch (rand() % 2)
+		{
+			case 1: while (start.x == end.x) end.x = rand() % width; break;
+			default: while (start.y == end.y) end.y = rand() % height; break;
+		}//End switch
+	}//End if
 
 	for (int i = 0; i < width; i++)
 	{
 		for (int j = 0; j < height; j++)
 		{
-			if (rand() % 10 < 2)
+			if (rand() % 100 < obstacleChance)
 			{
 				grid[j][i] = -2;
 			}
@@ -60,14 +70,21 @@ void Grid::initialiseGrid()
 	grid[end.y][end.x] = -1;
 }
 
-void Grid::floodGridLee()
+list<Grid::Node*> Grid::getPath()
+{
+	return path;
+}
+
+bool Grid::floodGridLee()
 {
 	int distance = 0;
+	bool stuck = false, change = false;
 	
 	grid[start.y][start.x] = distance;
 
-	while (grid[end.y][end.x] == -1)
+	while (grid[end.y][end.x] == -1 && !stuck)
 	{
+		change = false;
 		for (int x = 0; x < width; x++)
 		{
 			for (int y = 0; y < height; y++)
@@ -84,6 +101,7 @@ void Grid::floodGridLee()
 					{
 						if (grid[y][x + 1] == distance)
 						{
+							change = true;
 							grid[y][x] = distance + 1;
 							continue;
 						}
@@ -94,6 +112,7 @@ void Grid::floodGridLee()
 					{
 						if (grid[y][x - 1] == distance)
 						{
+							change = true;
 							grid[y][x] = distance + 1;
 							continue;
 						}
@@ -104,6 +123,7 @@ void Grid::floodGridLee()
 					{
 						if (grid[y + 1][x] == distance)
 						{
+							change = true;
 							grid[y][x] = distance + 1;
 							continue;
 						}
@@ -114,6 +134,7 @@ void Grid::floodGridLee()
 					{
 						if (grid[y - 1][x] == distance)
 						{
+							change = true;
 							grid[y][x] = distance + 1;
 							continue;
 						}
@@ -122,79 +143,94 @@ void Grid::floodGridLee()
 			}//End y for
 		}//End x for
 
+		if (!change) stuck = true;
+
 		distance++;
-	}
+	}//End while
+	if (stuck) return false;
+	else return true;
 }
 
-list<Grid::Node*> Grid::createPathLee()
+void Grid::findPathLee()
 {
 	path.clear();
-	Node* currentPos = &end;
-	int distance = grid[end.y][end.x];
-	path.push_back(currentPos);
+	bool pathFound = floodGridLee();
 
-	while (distance != 0 && distance != -1 && distance != -2)
+	if (pathFound)
 	{
-		if (currentPos->x != 0)
-		{
-			if (grid[currentPos->y][currentPos->x - 1] == distance - 1)
-			{
-				Node* pos = new Node(*currentPos);
-				pos->x = currentPos->x - 1;
-				path.push_back(pos);
-				currentPos = pos;
-				distance--;
-				continue;
-			}
-		}
+		Node* currentPos = &end;
+		int distance = grid[end.y][end.x];
+		path.push_back(currentPos);
 
-		if (currentPos->y != 0)
+		while (distance != 0 && distance != -1 && distance != -2)
 		{
-			if (grid[currentPos->y - 1][currentPos->x] == distance - 1)
+			if (currentPos->x != 0)
 			{
-				Node* pos = new Node(*currentPos);
-				pos->y = currentPos->y - 1;
-				path.push_back(pos);
-				currentPos = pos;
-				distance--;
-				continue;
+				if (grid[currentPos->y][currentPos->x - 1] == distance - 1)
+				{
+					Node* pos = new Node(*currentPos);
+					pos->x = currentPos->x - 1;
+					path.push_back(pos);
+					currentPos = pos;
+					distance--;
+					continue;
+				}
 			}
-		}
 
-		if (currentPos->x < width-1)
-		{
-			if (grid[currentPos->y][currentPos->x + 1] == distance - 1)
+			if (currentPos->y != 0)
 			{
-				Node* pos = new Node(*currentPos);
-				pos->x = currentPos->x + 1;
-				path.push_back(pos);
-				currentPos = pos;
-				distance--;
-				continue;
+				if (grid[currentPos->y - 1][currentPos->x] == distance - 1)
+				{
+					Node* pos = new Node(*currentPos);
+					pos->y = currentPos->y - 1;
+					path.push_back(pos);
+					currentPos = pos;
+					distance--;
+					continue;
+				}
 			}
-		}
 
-		if (currentPos->y < height-1)
-		{
-			if (grid[currentPos->y + 1][currentPos->x] == distance - 1)
+			if (currentPos->x < width - 1)
 			{
-				Node* pos = new Node(*currentPos);
-				pos->y = currentPos->y + 1;
-				path.push_back(pos);
-				currentPos = pos;
-				distance--;
-				continue;
+				if (grid[currentPos->y][currentPos->x + 1] == distance - 1)
+				{
+					Node* pos = new Node(*currentPos);
+					pos->x = currentPos->x + 1;
+					path.push_back(pos);
+					currentPos = pos;
+					distance--;
+					continue;
+				}
 			}
-		}
-	}//End while
 
-	return path;
+			if (currentPos->y < height - 1)
+			{
+				if (grid[currentPos->y + 1][currentPos->x] == distance - 1)
+				{
+					Node* pos = new Node(*currentPos);
+					pos->y = currentPos->y + 1;
+					path.push_back(pos);
+					currentPos = pos;
+					distance--;
+					continue;
+				}
+			}
+		}//End while
+
+		path.reverse();
+	}//End if
+
+	//If a path has not been found, throw an in-program error
+	else
+	{
+		cout << "No Valid Path Found" << endl;
+	}//End else
 }
 
 void Grid::findPathAStar()
 {
 	//Create the structures that hold the open and closed data sets
-	vector<Node*> openSet;
+	vector<Node *> openSet;
 	unordered_set<Node*> closedSet;
 
 	bool found = false;
@@ -227,39 +263,39 @@ void Grid::findPathAStar()
 			end.g = currentNode->g;
 			end.f = currentNode->f;
 			end.parentNode = currentNode->parentNode;
+			path.push_front(&end);
 			found = true;
 			break;
 		}//End if
 
-		//Check the nodes to the left and right of the current node if in range
-		for (int cX = -1; cX <= 1; cX += 2)
-		{
-			if ((cX == -1 && currentNode->x + cX != -1) || (cX == 1 && currentNode->x + cX != width))
-			{
-				Node* newNode = new Node();
-				newNode->x = currentNode->x + cX;
-				newNode->y = currentNode->y;
-				addNodeToOpenSet(closedSet, newNode, openSet, currentNode);
-			}
-		}
-
-		//Check the nodes above and below the current node if in range
-		for (int cY = -1; cY <= 1; cY += 2)
-		{
-			if ((cY == -1 && currentNode->y + cY != -1) || (cY == 1 && currentNode->y + cY != height))
-			{
-				Node* newNode = new Node();
-				newNode->x = currentNode->x;
-				newNode->y = currentNode->y + cY;
-				addNodeToOpenSet(closedSet, newNode, openSet, currentNode);
-			}
-		}
+		//If not the destination, check all surrounding valid nodes
+		checkNeigbouringNodes(currentNode, &openSet, &closedSet);
 	}//End while
 
-	cout << "Open Set Size: " << openSet.size() << endl;
-	cout << "Closed Set Size: " << closedSet.size() << endl;
+	//cout << "Open Set Size: " << openSet.size() << endl;
+	//cout << "Closed Set Size: " << closedSet.size() << endl;
 
 	//Clear the open and closed sets, since they are no longer needed
+
+	//This works perfectly fine and deletes them all
+	//data structure: vector
+	for (Node* node : openSet)
+	{
+		delete(node);
+		node = NULL;
+	}
+
+	//This causes the program to crash 
+	//after a small number of iterations
+	////data structure: unordered_set
+	//for (Node* node : closedSet)
+	//{
+	//	delete(node);
+	//	node = NULL;
+	//}
+
+	//Only calling these gets rid of the pointers,
+	//but leaves the objects they pointed to intact
 	openSet.clear();
 	closedSet.clear();
 
@@ -275,7 +311,59 @@ void Grid::findPathAStar()
 			path.push_front(currentNode);
 			currentNode = currentNode->parentNode;
 		}//End while
+		path.push_front(&start);
 	}//End if
+
+	//If a path has not been found, throw an in-program error
+	else
+	{
+		cout << "No Valid Path Found" << endl;
+	}//End else
+}
+
+void Grid::checkNeigbouringNodes(Node* currentNode, vector<Node*> *openSet, unordered_set<Node*> *closedSet)
+{
+	bool validAbove, validBelow, validLeft, validRight;
+	//Check the nodes to the left and right of the current node if in range
+	for (int check = -1; check <= 1; check += 2)
+	{
+		//Reset booleans to be false each iteration
+		validAbove = false; validBelow = false; validLeft = false; validRight = false;
+
+		//Checking above and left
+		if (check == -1)
+		{
+			validAbove = currentNode->y + check != -1 && grid[currentNode->y + check][currentNode->x] != -2;
+			validLeft = currentNode->x + check != -1 &&  grid[currentNode->y][currentNode->x + check] != -2;
+		}//End if
+
+		//Checking below and right
+		else
+		{
+			validBelow = currentNode->y + check != height && grid[currentNode->y + check][currentNode->x] != -2;
+			validRight = currentNode->x + check != width &&  grid[currentNode->y][currentNode->x + check] != -2;
+		}//End else
+
+		if (validAbove || validBelow)	 checkNeighbour(check, 'Y', currentNode, openSet, closedSet);
+		if (validLeft  || validRight)	 checkNeighbour(check, 'X', currentNode, openSet, closedSet);
+	}
+}
+
+void Grid::checkNeighbour(int checkSide, char axis, Node* currentNode, vector<Node*> *openSet, unordered_set<Node*> *closedSet)
+{
+	Node* newNode = new Node();
+	if (axis == 'Y')
+	{
+		newNode->x = currentNode->x;
+		newNode->y = currentNode->y + checkSide;
+	}
+	else if (axis == 'X')
+	{
+		newNode->x = currentNode->x + checkSide;
+		newNode->y = currentNode->y;
+	}
+	
+	addNodeToOpenSet(*closedSet, newNode, *openSet, currentNode);
 }
 
 void Grid::addNodeToOpenSet(std::unordered_set<Grid::Node*>& closedSet, Grid::Node*& newNode, std::vector<Grid::Node*>& openSet, Grid::Node* currentNode)
@@ -319,6 +407,11 @@ void Grid::calculateNodeValuesAStar(Node* current, Node* newNode)
 	newNode->parentNode = current;
 }
 
+Grid::Node::~Node()
+{
+	parentNode = nullptr;
+}
+
 bool Grid::Node::operator == (const Grid::Node& rhs) const
 {
 	//Two nodes are considered the same if they have X and Y values that match each other
@@ -335,5 +428,26 @@ void Grid::printPath()
 			cout << "- " << c->x << ", " << c->y << endl;
 		}
 	}
-	else cout << "NOT FOUND" << endl;
+	else cout << "PATH NOT FOUND" << endl;
+}
+
+void Grid::resetGrid()
+{
+	for (int i = 0; i < width; i++)
+	{
+		for (int j = 0; j < height; j++)
+		{
+			if (grid[j][i] == -2) continue;
+			else
+			{
+				grid[j][i] = -1;
+			}
+		}
+	}
+
+	//Set the display value for the start node to a distance of 0
+	grid[start.y][start.x] = 0;
+
+	//Make sure that the end value isn't an unreachable obstacle
+	grid[end.y][end.x] = -1;
 }

@@ -1,2 +1,3 @@
-﻿  Main.cpp
+﻿  Grid.cpp
+C:\Users\Jordan.Oaksydix\Pictures\The Shit™ Collection\University Shit\2nd Year\DS&A 1\pathfinding\Grid.cpp(377,41): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
   pathfinding.vcxproj -> C:\Users\Jordan.Oaksydix\Pictures\The Shit™ Collection\University Shit\2nd Year\DS&A 1\pathfinding\Debug\pathfinding.exe

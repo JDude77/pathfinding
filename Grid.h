@@ -14,24 +14,22 @@ public:
 		int y = -1;
 		double f, g, h;
 		Node* parentNode;
+		~Node();
 		bool operator == (const Node& rhs) const;
 	};
 
 	void displayGrid();
-	void initialiseGrid();
+	void initialiseRandomGrid();
+	list<Node *> getPath();
 	void printPath();
-
-	void floodGridLee();
-	list<Node*> createPathLee();
-
+	void resetGrid();
+	void findPathLee();
 	void findPathAStar();
-	void addNodeToOpenSet(std::unordered_set<Grid::Node*>& closedSet, Grid::Node*& newNode, std::vector<Grid::Node*>& openSet, Grid::Node* currentNode);
-	void insertNodeAStar(vector<Node*>& openSet, Node* nodeToAdd);
-	void calculateNodeValuesAStar(Node* current, Node* newNode);
-
+	
 private:
-	const static int width = 10;
-	const static int height = 10;
+	const static int width =			100;
+	const static int height	=			100;
+	const static int obstacleChance =	0;
 
 	int grid[width][height];
 
@@ -39,6 +37,14 @@ private:
 	Node end;
 
 	list<Node *> path;
+
+	bool floodGridLee();
+
+	void checkNeigbouringNodes(Node* currentNode, vector<Node*>* openSet, unordered_set<Node*>* closedSet);
+	void checkNeighbour(int checkSide, char axis, Node* currentNode, vector<Node*>* openSet, unordered_set<Node*>* closedSet);
+	void insertNodeAStar(vector<Node*>& openSet, Node* nodeToAdd);
+	void addNodeToOpenSet(std::unordered_set<Grid::Node*>& closedSet, Grid::Node*& newNode, std::vector<Grid::Node*>& openSet, Grid::Node* currentNode);
+	void calculateNodeValuesAStar(Node* current, Node* newNode);
 };
 
 

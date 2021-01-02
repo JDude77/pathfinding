@@ -1,0 +1,10 @@
+﻿  Grid.cpp
+C:\Users\Jordan.Oaksydix\Pictures\The Shit™ Collection\University Shit\2nd Year\DS&A 1\pathfinding\Grid.cpp(385,41): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+  Main.cpp
+C:\Users\Jordan.Oaksydix\Pictures\The Shit™ Collection\University Shit\2nd Year\DS&A 1\pathfinding\Main.cpp(54,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  Generating code
+  10 of 440 functions ( 2.3%) were compiled, the rest were copied from previous compilation.
+    4 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  pathfinding.vcxproj -> C:\Users\Jordan.Oaksydix\Pictures\The Shit™ Collection\University Shit\2nd Year\DS&A 1\pathfinding\Release\pathfinding.exe
