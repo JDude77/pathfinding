@@ -3,48 +3,47 @@
 #include <list>
 #include <unordered_set>
 #include <vector>
+#include "AStar.h"
+#include "Lee.h"
+#include "Node.h"
 
 using namespace std;
 class Grid
 {
 public:
-	struct Node
+
+	enum PATHMODE
 	{
-		int x = -1;
-		int y = -1;
-		double f, g, h;
-		Node* parentNode;
-		~Node();
-		bool operator == (const Node& rhs) const;
+		ASTAR,
+		LEE
 	};
+
+	int pathMode = LEE;
 
 	void displayGrid();
 	void initialiseRandomGrid();
 	list<Node *> getPath();
+	void findPath();
 	void printPath();
-	void resetGrid();
-	void findPathLee();
-	void findPathAStar();
+	void cleanUp();
+	
+
+	virtual ~Grid();
 	
 private:
-	const static int width =			100;
-	const static int height	=			100;
-	const static int obstacleChance =	0;
+	const static int width =			50;
+	const static int height	=			25;
+	int obstacleChance =				0;
 
-	int grid[width][height];
+	int grid[height][width];
 
-	Node start;
-	Node end;
+	Node *start;
+	Node *end;
 
 	list<Node *> path;
 
-	bool floodGridLee();
+	AStar aStar;
+	Lee lee;
 
-	void checkNeigbouringNodes(Node* currentNode, vector<Node*>* openSet, unordered_set<Node*>* closedSet);
-	void checkNeighbour(int checkSide, char axis, Node* currentNode, vector<Node*>* openSet, unordered_set<Node*>* closedSet);
-	void insertNodeAStar(vector<Node*>& openSet, Node* nodeToAdd);
-	void addNodeToOpenSet(std::unordered_set<Grid::Node*>& closedSet, Grid::Node*& newNode, std::vector<Grid::Node*>& openSet, Grid::Node* currentNode);
-	void calculateNodeValuesAStar(Node* current, Node* newNode);
+	void destroyPath();
 };
-
-

@@ -19,7 +19,7 @@ void Timer::stopTimer()
 	if (hasStarted)
 	{
 		endTime = steady_clock::now();
-		savedTime = duration_cast<microseconds>(endTime - startTime).count();
+		savedTime = duration_cast<nanoseconds>(endTime - startTime).count();
 		hasStarted = false;
 	}
 	else
@@ -38,7 +38,7 @@ _int64 Timer::getSavedTime()
 	else
 	{
 		std::cout << "ERROR: Attempt to retrieve null time." << std::endl;
-		return -1;
+		return NULL;
 	}
 }
 

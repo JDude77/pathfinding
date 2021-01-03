@@ -6,7 +6,7 @@
 #include <iostream>
 
 using std::chrono::duration_cast;
-using std::chrono::microseconds;
+using std::chrono::nanoseconds;
 using std::chrono::steady_clock;
 
 class Timer
