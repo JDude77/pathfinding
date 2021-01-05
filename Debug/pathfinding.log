@@ -1,6 +1,4 @@
-﻿  AStar.cpp
-C:\Users\Jordan.Oaksydix\Pictures\The Shit™ Collection\University Shit\2nd Year\DS&A 1\pathfinding\AStar.cpp(171,42): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-  Grid.cpp
+﻿  Grid.cpp
 C:\Users\Jordan.Oaksydix\Pictures\The Shit™ Collection\University Shit\2nd Year\DS&A 1\pathfinding\Grid.cpp(36,16): warning C4566: character represented by universal-character-name '\u2588' cannot be represented in the current code page (1252)
 C:\Users\Jordan.Oaksydix\Pictures\The Shit™ Collection\University Shit\2nd Year\DS&A 1\pathfinding\Grid.cpp(41,16): warning C4566: character represented by universal-character-name '\u2588' cannot be represented in the current code page (1252)
 C:\Users\Jordan.Oaksydix\Pictures\The Shit™ Collection\University Shit\2nd Year\DS&A 1\pathfinding\Grid.cpp(46,16): warning C4566: character represented by universal-character-name '\u2588' cannot be represented in the current code page (1252)

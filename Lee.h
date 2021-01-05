@@ -7,8 +7,8 @@ using namespace std;
 class Lee
 {
 private:
-	const static int maxHeight = 25;
-	const static int maxWidth = 50;
+	const static int maxWidth = 100;
+	const static int maxHeight = 75;
 
 	list<Node*> path;
 

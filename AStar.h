@@ -10,8 +10,8 @@ using namespace std;
 class AStar
 {
 	private:
-		const static int maxWidth = 50;
-		const static int maxHeight = 25;
+		const static int maxWidth = 100;
+		const static int maxHeight = 75;
 
 		list<Node*> path;
 

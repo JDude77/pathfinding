@@ -31,9 +31,9 @@ public:
 	virtual ~Grid();
 	
 private:
-	const static int width =			50;
-	const static int height	=			25;
-	int obstacleChance =				0;
+	const static int width =			100;
+	const static int height	=			75;
+	int obstacleChance =				15;
 
 	int grid[height][width];
 
