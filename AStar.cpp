@@ -94,7 +94,8 @@ void AStar::findPath(int grid[maxHeight][maxWidth], int height, int width, Node*
 void AStar::checkNeigbouringNodes(Node* currentNode, vector<Node*>* openSet, unordered_set<Node*>* closedSet, int grid[maxHeight][maxWidth], Node* start, Node* end, int width, int height)
 {
 	bool validAbove, validBelow, validLeft, validRight;
-	//Check the nodes to the left and right of the current node if in range
+
+	//Check all nodes surrounding the current node in the cardinal directions
 	for (int check = -1; check <= 1; check += 2)
 	{
 		//Reset booleans to be false each iteration
@@ -135,20 +136,11 @@ void AStar::checkNeighbour(int checkSide, char axis, Node* currentNode, vector<N
 		newNode->y = currentNode->y;
 	}//End else if
 
-	//If there isn't, it's worth considering
+	//If the new node is not added to the open set, whatever the reason, delete it
 	if (!addNodeToOpenSet(*closedSet, newNode, *openSet, currentNode, grid, start, end))
 	{
 		delete newNode;
 	}//End if
-}
-
-void AStar::insertNodeAStar(vector<Node*>& openSet, Node* nodeToAdd)
-{
-	//Loop through the open set and find the correct point to add the new node 
-	vector<Node*>::iterator insertionPoint = std::lower_bound(openSet.begin(), openSet.end(), nodeToAdd,
-		[](const Node* lhs, const Node* rhs) { return lhs->f > rhs->f;});
-
-	openSet.insert(insertionPoint, nodeToAdd);
 }
 
 bool AStar::addNodeToOpenSet(std::unordered_set<Node*>& closedSet, Node*& newNode, std::vector<Node*>& openSet, Node* currentNode, int grid[maxHeight][maxWidth], Node* start, Node* end)
@@ -180,6 +172,15 @@ bool AStar::addNodeToOpenSet(std::unordered_set<Node*>& closedSet, Node*& newNod
 	return false;
 }
 
+void AStar::insertNodeAStar(vector<Node*>& openSet, Node* nodeToAdd)
+{
+	//Loop through the open set and find the correct point to add the new node 
+	vector<Node*>::iterator insertionPoint = std::lower_bound(openSet.begin(), openSet.end(), nodeToAdd,
+		[](const Node* lhs, const Node* rhs) { return lhs->f > rhs->f;});
+
+	openSet.insert(insertionPoint, nodeToAdd);
+}
+
 void AStar::calculateNodeValuesAStar(Node* current, Node* newNode, Node* start, Node* end)
 {
 	//Distance from start to here
@@ -195,7 +196,7 @@ void AStar::calculateNodeValuesAStar(Node* current, Node* newNode, Node* start, 
 
 bool AStar::nodeIsInPath(Node *& currentNode, Node* start, Node* end)
 {
-	//Node is in path or node is the start or end for cases where there is no path
+	//Check whether the node is in the path, or if node is the start or end (for cases where there is no path)
 	return currentNode == start || currentNode == end || find(path.begin(), path.end(), currentNode) != path.end();
 }
 

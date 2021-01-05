@@ -243,6 +243,11 @@ void Grid::cleanUp()
 	}//End switch
 }
 
+void Grid::setObstacleChance(int obstacleChance)
+{
+	this->obstacleChance = obstacleChance;
+}
+
 void Grid::destroyPath()
 {
 	//Clear the path

@@ -11,7 +11,6 @@ using namespace std;
 class Grid
 {
 public:
-
 	enum PATHMODE
 	{
 		ASTAR,
@@ -27,6 +26,7 @@ public:
 	void printPath();
 	void cleanUp();
 	
+	void setObstacleChance(int obstacleChance);
 
 	virtual ~Grid();
 	
